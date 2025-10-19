@@ -1,20 +1,33 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
+import { getCurrentUserRole } from '@/lib/auth/roles';
 
 export default async function DashboardPage() {
-  const user = await currentUser();
+  const clerkUser = await currentUser();
   
-  if (!user) {
+  if (!clerkUser) {
     redirect('/sign-in');
   }
+
+  // Get user role and info from our database
+  const userInfo = await getCurrentUserRole();
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
-          Welcome back, {user.firstName}!
+          Welcome back, {clerkUser.firstName}!
         </h1>
-        <p className="text-gray-600">
+        <div className="flex items-center space-x-4 text-sm text-gray-600">
+          <p>Role: <span className="font-medium text-blue-600">{userInfo?.role || 'employee'}</span></p>
+          {userInfo?.department && (
+            <p>Department: <span className="font-medium">{userInfo.department}</span></p>
+          )}
+          {userInfo?.employeeId && (
+            <p>Employee ID: <span className="font-medium">{userInfo.employeeId}</span></p>
+          )}
+        </div>
+        <p className="text-gray-600 mt-2">
           Here's your attendance overview for today.
         </p>
       </div>
