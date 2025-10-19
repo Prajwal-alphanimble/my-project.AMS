@@ -43,8 +43,8 @@ A comprehensive attendance management system built with Next.js, TypeScript, Cle
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
    CLERK_SECRET_KEY=your_clerk_secret_key
    
-   # MongoDB Connection
-   MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/ams?retryWrites=true&w=majority
+   # MongoDB Connection (Local)
+   MONGODB_URI=mongodb://localhost:27018/ams
    
    # Clerk URLs
    NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
@@ -53,13 +53,25 @@ A comprehensive attendance management system built with Next.js, TypeScript, Cle
    NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
    ```
 
-### Database Setup
+### Database Setup (MongoDB Compass - Local)
 
-1. Create a MongoDB Atlas account at https://cloud.mongodb.com
-2. Create a new cluster
-3. Create a database user with read/write permissions
-4. Get your connection string and add it to the `.env` file
-5. Replace `<username>` and `<password>` with your actual credentials
+1. **Install MongoDB Community Server**:
+   - Download from https://www.mongodb.com/try/download/community
+   - Install and start MongoDB service
+   - Default runs on `mongodb://localhost:27017`
+
+2. **Install MongoDB Compass** (GUI):
+   - Download from https://www.mongodb.com/try/download/compass
+   - Connect to `mongodb://localhost:27017`
+
+3. **Database Configuration**:
+   - The app will automatically create an `ams` database
+   - Collections will be created automatically when you add data
+
+4. **Seed Sample Data**:
+   - Start the application and visit: `http://localhost:3000/api/seed`
+   - This will create sample departments, employees, and attendance records
+   - View the data in MongoDB Compass
 
 ### Clerk Setup
 
@@ -129,8 +141,14 @@ src/
 4. Verify redirect to dashboard
 
 ### Test MongoDB Connection
-1. Visit http://localhost:3000/api/health
-2. Should return `{"success": true, "message": "Database connected successfully!"}`
+1. **Make sure MongoDB is running locally**
+2. Visit http://localhost:3000/api/health
+3. Should return `{"success": true, "message": "Database connected successfully!"}`
+4. **Seed sample data**: Visit http://localhost:3000/api/seed
+5. **View data in MongoDB Compass**:
+   - Connect to `mongodb://localhost:27017`
+   - Select the `ams` database
+   - Browse collections: `employees`, `departments`, `attendances`
 
 ### Check Protected Routes
 1. Try accessing http://localhost:3000/dashboard without signing in
