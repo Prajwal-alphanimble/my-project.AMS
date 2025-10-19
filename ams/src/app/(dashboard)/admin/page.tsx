@@ -1,9 +1,28 @@
-export default function AdminPage() {
+import { getCurrentUserRole, requireRole } from '@/lib/auth/roles';
+import { redirect } from 'next/navigation';
+
+export default async function AdminPage() {
+  // Require admin or HR role
+  try {
+    const user = await requireRole(['admin', 'hr']);
+  } catch (error) {
+    redirect('/employee'); // Redirect non-admin users to employee dashboard
+  }
+
+  const userInfo = await getCurrentUserRole();
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600">Manage employees and view reports.</p>
+        <h1 className="text-2xl font-bold text-gray-900">
+          Admin Dashboard
+        </h1>
+        <div className="flex items-center space-x-4 text-sm">
+          <p className="text-gray-600">Welcome, <span className="font-medium">{userInfo?.fullName}</span></p>
+          <span className="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+            {userInfo?.role?.toUpperCase()}
+          </span>
+        </div>
+        <p className="text-gray-600 mt-2">Manage employees and view reports.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

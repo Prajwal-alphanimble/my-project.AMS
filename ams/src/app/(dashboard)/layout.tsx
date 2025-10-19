@@ -1,11 +1,13 @@
 import { UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
+import { getCurrentUserRole } from '@/lib/auth/roles';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const userInfo = await getCurrentUserRole();
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -19,24 +21,35 @@ export default function DashboardLayout({
             </div>
             <div className="flex items-center space-x-4">
               <nav className="flex space-x-4">
-                <Link 
-                  href="/dashboard" 
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  href="/admin" 
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Admin
-                </Link>
+                {/* Show Admin link only for admin and HR users */}
+                {(userInfo?.role === 'admin' || userInfo?.role === 'hr') && (
+                  <Link 
+                    href="/admin" 
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
+                
+                {/* Show Employee link for all users */}
                 <Link 
                   href="/employee" 
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
-                  Employee
+                  {userInfo?.role === 'admin' || userInfo?.role === 'hr' ? 'Employee View' : 'My Dashboard'}
                 </Link>
+                
+                {/* Show role badge */}
+                {userInfo?.role && (
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    userInfo.role === 'admin' ? 'bg-red-100 text-red-800' :
+                    userInfo.role === 'hr' ? 'bg-purple-100 text-purple-800' :
+                    userInfo.role === 'manager' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-blue-100 text-blue-800'
+                  }`}>
+                    {userInfo.role.toUpperCase()}
+                  </span>
+                )}
               </nav>
               <UserButton afterSignOutUrl="/" />
             </div>

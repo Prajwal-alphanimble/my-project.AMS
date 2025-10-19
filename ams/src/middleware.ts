@@ -10,6 +10,11 @@ const isProtectedRoute = createRouteMatcher([
   '/api/reports(.*)',
 ]);
 
+const isAdminRoute = createRouteMatcher([
+  '/admin(.*)',
+  '/api/admin(.*)',
+]);
+
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     await auth.protect();
