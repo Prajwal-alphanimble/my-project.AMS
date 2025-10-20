@@ -34,7 +34,7 @@ export async function getCurrentUserRole() {
     }
 
     return {
-      id: dbUser._id,
+      id: dbUser._id.toString(),
       clerkId: dbUser.clerkId,
       email: dbUser.email,
       firstName: dbUser.firstName,
@@ -44,7 +44,7 @@ export async function getCurrentUserRole() {
       department: dbUser.department,
       employeeId: dbUser.employeeId,
       profileImageUrl: dbUser.profileImageUrl,
-      lastSignIn: dbUser.lastSignIn,
+      lastSignIn: dbUser.lastSignIn ? dbUser.lastSignIn.toISOString() : null,
     };
 
   } catch (error) {

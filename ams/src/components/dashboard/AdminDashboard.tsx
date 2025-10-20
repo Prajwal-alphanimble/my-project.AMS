@@ -38,6 +38,10 @@ interface UserInfo {
   fullName?: string;
   role?: string;
   email?: string;
+  firstName?: string;
+  lastName?: string;
+  department?: string;
+  employeeId?: string;
 }
 
 interface AdminDashboardProps {
@@ -137,35 +141,35 @@ export function AdminDashboard({ userInfo }: AdminDashboardProps) {
   const statsCards = stats ? [
     {
       title: "Total Users",
-      value: stats.totalUsers,
+      value: stats.totalUsers || 0,
       icon: Users,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
-      description: `${stats.totalEmployees} employees, ${stats.totalStudents} students`
+      description: `${stats.totalEmployees || 0} employees, ${stats.totalStudents || 0} students`
     },
     {
       title: "Present Today", 
-      value: stats.todayAttendance.present,
+      value: stats.todayAttendance?.present || 0,
       icon: UserCheck,
       color: "text-green-600",
       bgColor: "bg-green-50",
-      description: `${stats.todayAttendance.rate.toFixed(1)}% attendance rate`
+      description: `${(stats.todayAttendance?.rate || 0).toFixed(1)}% attendance rate`
     },
     {
       title: "Absent Today",
-      value: stats.todayAttendance.absent,
+      value: stats.todayAttendance?.absent || 0,
       icon: Clock,
       color: "text-red-600", 
       bgColor: "bg-red-50",
-      description: `${stats.todayAttendance.late} late arrivals`
+      description: `${stats.todayAttendance?.late || 0} late arrivals`
     },
     {
       title: "Monthly Average",
-      value: `${stats.monthlyStats.averageAttendance.toFixed(1)}%`,
+      value: `${(stats.monthlyStats?.averageAttendance || 0).toFixed(1)}%`,
       icon: TrendingUp,
       color: "text-purple-600",
       bgColor: "bg-purple-50",
-      description: `${stats.monthlyStats.totalWorkingDays} working days`
+      description: `${stats.monthlyStats?.totalWorkingDays || 0} working days`
     }
   ] : [];
 
@@ -302,7 +306,7 @@ export function AdminDashboard({ userInfo }: AdminDashboardProps) {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Active Users</span>
-                <span className="text-xs font-medium text-gray-900">{stats?.todayAttendance.present || 0}</span>
+                <span className="text-xs font-medium text-gray-900">{stats?.todayAttendance?.present || 0}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">System Health</span>

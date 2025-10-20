@@ -18,11 +18,23 @@ export async function GET() {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     // Aggregate stats
-    const [totalUsers, todayAttendance, departments] = await Promise.all([
-      // Total active users (employees)
+    const [totalUsers, totalEmployees, totalStudents, todayAttendance, departments] = await Promise.all([
+      // Total active users (employees + students)
       User.countDocuments({ 
         status: 'active',
         role: { $in: ['employee', 'student'] }
+      }),
+
+      // Total employees
+      User.countDocuments({ 
+        status: 'active',
+        role: 'employee'
+      }),
+
+      // Total students  
+      User.countDocuments({ 
+        status: 'active',
+        role: 'student'
       }),
 
       // Today's attendance stats
@@ -87,18 +99,30 @@ export async function GET() {
 
     // Calculate attendance rate
     const totalAttendanceRecords = attendanceStats.present + attendanceStats.absent + attendanceStats.late + attendanceStats.halfDay;
-    const attendanceRate = totalAttendanceRecords > 0 
-      ? ((attendanceStats.present + attendanceStats.late + attendanceStats.halfDay) / totalAttendanceRecords * 100).toFixed(1)
-      : '0';
+    const totalAttendanceToday = attendanceStats.present + attendanceStats.absent + attendanceStats.late + attendanceStats.halfDay;
+    const attendanceRate = totalAttendanceToday > 0 
+      ? ((attendanceStats.present + attendanceStats.late + attendanceStats.halfDay) / totalAttendanceToday * 100)
+      : 0;
+
+    // Calculate monthly averages (mock data for now)
+    const monthlyStats = {
+      averageAttendance: 85.2,
+      totalWorkingDays: 22,
+      holidaysCount: 3
+    };
 
     return NextResponse.json({
       totalUsers,
-      attendanceStats,
-      attendanceRate: parseFloat(attendanceRate),
-      departments: departments.map((dept: any) => ({
-        name: dept._id || 'Unassigned',
-        count: dept.count
-      })),
+      totalEmployees,
+      totalStudents,
+      todayAttendance: {
+        present: attendanceStats.present,
+        absent: attendanceStats.absent,
+        late: attendanceStats.late,
+        total: totalAttendanceToday,
+        rate: attendanceRate
+      },
+      monthlyStats,
       lastUpdated: new Date().toISOString()
     });
 

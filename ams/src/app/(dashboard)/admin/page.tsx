@@ -10,7 +10,18 @@ export default async function AdminPage() {
     redirect('/employee'); // Redirect non-admin users to employee dashboard
   }
 
-  const userInfo = await getCurrentUserRole();
+  const rawUserInfo = await getCurrentUserRole();
+  
+  // Serialize the user info to avoid passing MongoDB objects to client components
+  const userInfo = rawUserInfo ? {
+    fullName: rawUserInfo.fullName,
+    role: rawUserInfo.role,
+    email: rawUserInfo.email,
+    firstName: rawUserInfo.firstName,
+    lastName: rawUserInfo.lastName,
+    department: rawUserInfo.department,
+    employeeId: rawUserInfo.employeeId
+  } : null;
   
   return <AdminDashboard userInfo={userInfo} />;
 }
