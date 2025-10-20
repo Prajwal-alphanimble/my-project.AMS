@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-// Employee Interface
-export interface IEmployee extends Document {
+// Student Interface
+export interface IStudent extends Document {
   userId: mongoose.Types.ObjectId; // Reference to User
   fullName: string;
-  employeeId: string; // unique identifier
+  studentId: string; // unique identifier
   department: string;
-  designation: string;
+  designation: string; // class/year/program
   phone?: string;
   address?: {
     street?: string;
@@ -21,8 +21,8 @@ export interface IEmployee extends Document {
   updatedAt: Date;
 }
 
-// Employee Schema
-const EmployeeSchema: Schema = new Schema({
+// Student Schema
+const StudentSchema: Schema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
@@ -33,7 +33,7 @@ const EmployeeSchema: Schema = new Schema({
     required: true,
     trim: true
   },
-  employeeId: {
+  studentId: {
     type: String,
     required: true,
     unique: true,
@@ -74,9 +74,9 @@ const EmployeeSchema: Schema = new Schema({
 });
 
 // Indexes for efficient queries
-EmployeeSchema.index({ userId: 1 });
-EmployeeSchema.index({ employeeId: 1 });
-EmployeeSchema.index({ department: 1 });
+StudentSchema.index({ userId: 1 });
+StudentSchema.index({ studentId: 1 });
+StudentSchema.index({ department: 1 });
 
 // Export the model
-export default mongoose.models.Employee || mongoose.model<IEmployee>('Employee', EmployeeSchema);
+export default mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);

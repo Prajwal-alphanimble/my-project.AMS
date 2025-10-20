@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "phase2:examples": "npx tsx phase2-examples.ts",
+    "phase2:test": "npx tsx src/lib/db/test-phase2.ts",
+    "phase3:test": "npx tsx phase3-tests.ts",
+    "phase3:verify": "node phase3-verification.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.7",
@@ -22,6 +26,7 @@
     "react-dom": "19.1.0",
     "recharts": "^3.3.0",
     "shadcn-ui": "^0.9.5",
+    "svix": "^1.77.0",
     "tailwind-merge": "^3.3.1",
     "xlsx": "^0.18.5",
     "zod": "^4.1.12",
@@ -36,6 +41,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.6",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

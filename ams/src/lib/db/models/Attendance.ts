@@ -2,32 +2,35 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // Attendance Interface
 export interface IAttendance extends Document {
-  employeeId: string;
+  userId: mongoose.Types.ObjectId; // Reference to User
   date: Date;
-  checkIn?: Date;
-  checkOut?: Date;
+  checkInTime?: Date;
+  checkOutTime?: Date;
   status: 'present' | 'absent' | 'late' | 'half-day';
+  isManualEntry: boolean;
+  remarks?: string;
+  createdBy: mongoose.Types.ObjectId; // Reference to User who created the entry
   totalHours?: number;
-  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 // Attendance Schema
 const AttendanceSchema: Schema = new Schema({
-  employeeId: {
-    type: String,
-    required: true,
-    ref: 'Employee'
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   date: {
     type: Date,
-    required: true
+    required: true,
+    index: true
   },
-  checkIn: {
+  checkInTime: {
     type: Date
   },
-  checkOut: {
+  checkOutTime: {
     type: Date
   },
   status: {
@@ -35,14 +38,23 @@ const AttendanceSchema: Schema = new Schema({
     enum: ['present', 'absent', 'late', 'half-day'],
     required: true
   },
+  isManualEntry: {
+    type: Boolean,
+    default: false
+  },
+  remarks: {
+    type: String,
+    trim: true
+  },
+  createdBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   totalHours: {
     type: Number,
     min: 0,
     max: 24
-  },
-  notes: {
-    type: String,
-    trim: true
   }
 }, {
   timestamps: true,
@@ -50,14 +62,20 @@ const AttendanceSchema: Schema = new Schema({
   toObject: { virtuals: true }
 });
 
-// Compound index for employee and date (one record per employee per day)
-AttendanceSchema.index({ employeeId: 1, date: 1 }, { unique: true });
+// Compound index for userId and date (one record per user per day)
+AttendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
+
+// Additional indexes for efficient queries
+AttendanceSchema.index({ date: 1 });
+AttendanceSchema.index({ status: 1 });
+AttendanceSchema.index({ createdBy: 1 });
+AttendanceSchema.index({ date: 1, status: 1 }); // Date range queries with status filter
 
 // Pre-save middleware to calculate total hours
 AttendanceSchema.pre('save', function(next) {
-  if (this.checkIn && this.checkOut) {
-    const checkIn = this.checkIn as Date;
-    const checkOut = this.checkOut as Date;
+  if (this.checkInTime && this.checkOutTime) {
+    const checkIn = this.checkInTime as Date;
+    const checkOut = this.checkOutTime as Date;
     const diffMs = checkOut.getTime() - checkIn.getTime();
     this.totalHours = Math.round((diffMs / (1000 * 60 * 60)) * 100) / 100;
   }

@@ -2,23 +2,19 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // User Interface (synced with Clerk)
 export interface IUser extends Document {
-  clerkId: string; // Clerk user ID
+  clerkUserId: string; // Clerk user ID
   email: string;
-  firstName: string;
-  lastName: string;
-  role: 'admin' | 'employee' | 'hr' | 'manager';
-  department?: string;
-  employeeId?: string;
-  phone?: string;
-  profileImageUrl?: string;
-  lastSignIn?: Date;
+  role: 'admin' | 'employee' | 'student';
+  department: string;
+  joinDate: Date;
+  status: 'active' | 'inactive';
   createdAt: Date;
   updatedAt: Date;
 }
 
 // User Schema
 const UserSchema: Schema = new Schema({
-  clerkId: {
+  clerkUserId: {
     type: String,
     required: true,
     unique: true,
@@ -31,40 +27,25 @@ const UserSchema: Schema = new Schema({
     lowercase: true,
     trim: true
   },
-  firstName: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  lastName: {
-    type: String,
-    required: true,
-    trim: true
-  },
   role: {
     type: String,
-    enum: ['admin', 'employee', 'hr', 'manager'],
-    default: 'employee'
+    enum: ['admin', 'employee', 'student'],
+    required: true
   },
   department: {
     type: String,
+    required: true,
     trim: true
   },
-  employeeId: {
-    type: String,
-    trim: true,
-    sparse: true // Allow multiple null values
+  joinDate: {
+    type: Date,
+    required: true,
+    default: Date.now
   },
-  phone: {
+  status: {
     type: String,
-    trim: true
-  },
-  profileImageUrl: {
-    type: String,
-    trim: true
-  },
-  lastSignIn: {
-    type: Date
+    enum: ['active', 'inactive'],
+    default: 'active'
   }
 }, {
   timestamps: true,
@@ -72,15 +53,12 @@ const UserSchema: Schema = new Schema({
   toObject: { virtuals: true }
 });
 
-// Virtual for full name
-UserSchema.virtual('fullName').get(function() {
-  return `${this.firstName} ${this.lastName}`;
-});
-
 // Index for efficient queries
-UserSchema.index({ clerkId: 1 });
+UserSchema.index({ clerkUserId: 1 });
 UserSchema.index({ email: 1 });
 UserSchema.index({ role: 1 });
+UserSchema.index({ department: 1 });
+UserSchema.index({ status: 1 });
 
 // Export the model
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
