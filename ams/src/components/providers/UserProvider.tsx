@@ -39,6 +39,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const fetchUserInfo = async () => {
     if (!clerkUser || !isLoaded) {
       setLoading(false);
+      setUserInfo(null);
       return;
     }
 
@@ -47,8 +48,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       
       const response = await fetch('/api/users/me');
+      
+      if (response.status === 401) {
+        // User not authenticated, clear user info
+        setUserInfo(null);
+        return;
+      }
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch user info');
+        throw new Error(`Failed to fetch user info: ${response.status}`);
       }
       
       const data = await response.json();
@@ -56,6 +64,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error('Error fetching user info:', err);
       setError(err instanceof Error ? err.message : 'Unknown error');
+      setUserInfo(null);
     } finally {
       setLoading(false);
     }
@@ -64,6 +73,24 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     fetchUserInfo();
   }, [clerkUser, isLoaded]);
+
+  // Early return loading state while Clerk is still loading
+  if (!isLoaded) {
+    return (
+      <UserContext.Provider value={{
+        userInfo: null,
+        loading: true,
+        error: null,
+        refetchUser: fetchUserInfo,
+        hasRole: () => false,
+        isAdmin: () => false,
+        isHR: () => false,
+        isManager: () => false,
+      }}>
+        {children}
+      </UserContext.Provider>
+    );
+  }
 
   const hasRole = (roles: string[]): boolean => {
     return userInfo ? roles.includes(userInfo.role) : false;

@@ -1,43 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@/lib/auth/helpers';
-import { UserService, EmployeeService, StudentService } from '@/lib/db/services';
-import { connectToDatabase } from '@/lib/db/mongodb';
+import { getCurrentUserRole } from '@/lib/auth/roles';
+import connectDB from '@/lib/db/mongodb';
+import { User, Employee } from '@/lib/db/models';
+import { z } from 'zod';
+
+// Validation schema for user profile updates
+const updateUserProfileSchema = z.object({
+  firstName: z.string().min(1).max(50).optional(),
+  lastName: z.string().min(1).max(50).optional(),
+  phone: z.string().regex(/^\+?[\d\s\-\(\)]+$/).optional(),
+  department: z.string().min(1).max(100).optional(),
+});
 
 // GET /api/users/me - Get current user profile
-export const GET = withAuth(async (user) => {
+export async function GET() {
   try {
-    await connectToDatabase();
+    const userInfo = await getCurrentUserRole();
     
-    // Get user details
-    const userDetails = await UserService.findById(user.id);
-    if (!userDetails) {
+    if (!userInfo) {
       return NextResponse.json(
-        { error: 'User not found' },
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    await connectDB();
+    
+    // Get full user details from database
+    const dbUser = await User.findOne({ clerkId: userInfo.clerkId }).lean();
+    if (!dbUser) {
+      return NextResponse.json(
+        { error: 'User not found in database' },
         { status: 404 }
       );
     }
 
-    // Get role-specific profile
-    let profileData = null;
-    if (user.role === 'employee') {
-      profileData = await EmployeeService.findByUserId(user.id);
-    } else if (user.role === 'student') {
-      profileData = await StudentService.findByUserId(user.id);
+    // Get employee record if user is an employee
+    let employeeRecord = null;
+    if (['employee', 'manager', 'hr'].includes(userInfo.role)) {
+      employeeRecord = await Employee.findOne({ userId: (dbUser as any)._id }).lean();
     }
 
     return NextResponse.json({
       user: {
-        id: user.id,
-        clerkUserId: user.clerkUserId,
-        email: user.email,
-        role: user.role,
-        department: user.department,
-        status: user.status,
-        joinDate: (userDetails as any).joinDate,
-        createdAt: (userDetails as any).createdAt,
-        updatedAt: (userDetails as any).updatedAt,
+        id: (dbUser as any)._id,
+        clerkId: userInfo.clerkId,
+        email: userInfo.email,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        fullName: userInfo.fullName,
+        role: userInfo.role,
+        department: userInfo.department,
+        employeeId: userInfo.employeeId,
+        profileImageUrl: userInfo.profileImageUrl,
+        lastSignIn: userInfo.lastSignIn,
+        status: (dbUser as any).status,
+        createdAt: (dbUser as any).createdAt,
+        updatedAt: (dbUser as any).updatedAt,
       },
-      profile: profileData,
+      employee: employeeRecord,
     });
   } catch (error) {
     console.error('Error getting user profile:', error);
@@ -46,75 +67,89 @@ export const GET = withAuth(async (user) => {
       { status: 500 }
     );
   }
-});
+}
 
 // PUT /api/users/me - Update current user profile
-export const PUT = withAuth(async (user, req: NextRequest) => {
+export async function PUT(req: NextRequest) {
   try {
+    const userInfo = await getCurrentUserRole();
+    
+    if (!userInfo) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
-    await connectToDatabase();
-
-    // Validate and extract updatable fields
-    const userUpdateData: any = {};
-    const profileUpdateData: any = {};
-
-    // User-level updates (limited for self-update)
-    if (body.department && user.role === 'admin') {
-      userUpdateData.department = body.department;
+    
+    // Validate input
+    const validation = updateUserProfileSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Invalid input', details: validation.error.issues },
+        { status: 400 }
+      );
     }
 
-    // Profile-level updates
-    if (body.fullName) {
-      profileUpdateData.fullName = body.fullName;
-    }
-    if (body.phone) {
-      profileUpdateData.phone = body.phone;
-    }
-    if (body.address) {
-      profileUpdateData.address = body.address;
-    }
-    if (body.dateOfBirth) {
-      profileUpdateData.dateOfBirth = new Date(body.dateOfBirth);
-    }
-    if (body.profileImage) {
-      profileUpdateData.profileImage = body.profileImage;
-    }
-    if (body.designation && user.role === 'admin') {
-      profileUpdateData.designation = body.designation;
+    const { firstName, lastName, phone, department } = validation.data;
+
+    await connectDB();
+
+    // Update user in database
+    const updateData: any = {};
+    if (firstName) updateData.firstName = firstName;
+    if (lastName) updateData.lastName = lastName;
+    if (phone) updateData.phone = phone;
+    if (department) updateData.department = department;
+    updateData.updatedAt = new Date();
+
+    const updatedUser = await User.findOneAndUpdate(
+      { clerkId: userInfo.clerkId },
+      updateData,
+      { new: true }
+    ).lean();
+
+    if (!updatedUser) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
     }
 
-    // Update user record if needed
-    let updatedUser = null;
-    if (Object.keys(userUpdateData).length > 0) {
-      updatedUser = await UserService.update(user.id, userUpdateData);
-    }
-
-    // Update profile record
-    let updatedProfile = null;
-    if (Object.keys(profileUpdateData).length > 0) {
-      if (user.role === 'employee') {
-        const existingProfile = await EmployeeService.findByUserId(user.id);
-        if (existingProfile) {
-          updatedProfile = await EmployeeService.update(
-            (existingProfile as any)._id.toString(),
-            profileUpdateData
-          );
-        }
-      } else if (user.role === 'student') {
-        const existingProfile = await StudentService.findByUserId(user.id);
-        if (existingProfile) {
-          updatedProfile = await StudentService.update(
-            (existingProfile as any)._id.toString(),
-            profileUpdateData
-          );
-        }
+    // Update employee record if it exists
+    let updatedEmployee = null;
+    if (['employee', 'manager', 'hr'].includes(userInfo.role)) {
+      const employeeUpdateData: any = {};
+      if (department) employeeUpdateData.department = department;
+      
+      if (Object.keys(employeeUpdateData).length > 0) {
+        updatedEmployee = await Employee.findOneAndUpdate(
+          { userId: (updatedUser as any)._id },
+          employeeUpdateData,
+          { new: true }
+        ).lean();
       }
     }
 
     return NextResponse.json({
       message: 'Profile updated successfully',
-      user: updatedUser || user,
-      profile: updatedProfile,
+      user: {
+        id: (updatedUser as any)._id,
+        clerkId: userInfo.clerkId,
+        email: (updatedUser as any).email,
+        firstName: (updatedUser as any).firstName,
+        lastName: (updatedUser as any).lastName,
+        fullName: `${(updatedUser as any).firstName} ${(updatedUser as any).lastName}`,
+        role: (updatedUser as any).role,
+        department: (updatedUser as any).department,
+        employeeId: (updatedUser as any).employeeId,
+        phone: (updatedUser as any).phone,
+        profileImageUrl: (updatedUser as any).profileImageUrl,
+        status: (updatedUser as any).status,
+        updatedAt: (updatedUser as any).updatedAt,
+      },
+      employee: updatedEmployee,
     });
   } catch (error) {
     console.error('Error updating user profile:', error);
@@ -123,4 +158,4 @@ export const PUT = withAuth(async (user, req: NextRequest) => {
       { status: 500 }
     );
   }
-});
+}
