@@ -126,6 +126,17 @@ export const UserQuerySchema = z.object({
   limit: z.string().regex(/^\d+$/).transform(Number).optional().default(10)
 });
 
+// Employee query schema for API endpoints
+export const EmployeeQuerySchema = z.object({
+  page: z.string().regex(/^\d+$/).transform(Number).optional().default(1),
+  limit: z.string().regex(/^\d+$/).transform(Number).optional().default(10),
+  search: z.string().optional(),
+  department: z.string().optional(),
+  designation: z.string().optional(),
+  sortBy: z.string().optional().default('createdAt'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc')
+});
+
 // Date range validation
 export const DateRangeSchema = z.object({
   startDate: z.date(),
@@ -149,4 +160,5 @@ export type DepartmentUpdateInput = z.infer<typeof DepartmentUpdateSchema>;
 export type BulkAttendanceInput = z.infer<typeof BulkAttendanceSchema>;
 export type AttendanceQuery = z.infer<typeof AttendanceQuerySchema>;
 export type UserQuery = z.infer<typeof UserQuerySchema>;
+export type EmployeeQuery = z.infer<typeof EmployeeQuerySchema>;
 export type DateRange = z.infer<typeof DateRangeSchema>;

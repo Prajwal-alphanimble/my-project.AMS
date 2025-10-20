@@ -31,6 +31,16 @@ export default async function DashboardLayout({
                   </Link>
                 )}
                 
+                {/* Show Employee Management link for admin users */}
+                {userInfo?.role === 'admin' && (
+                  <Link 
+                    href="/employees" 
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Employees
+                  </Link>
+                )}
+                
                 {/* Show Employee link for all users */}
                 <Link 
                   href="/employee" 
