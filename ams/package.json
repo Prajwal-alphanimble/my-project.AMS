@@ -11,7 +11,8 @@
     "phase2:test": "npx tsx src/lib/db/test-phase2.ts",
     "phase3:test": "npx tsx phase3-tests.ts",
     "phase3:verify": "node phase3-verification.js",
-    "phase5:test": "npx tsx phase5-tests.ts"
+    "phase5:test": "npx tsx phase5-tests.ts",
+    "phase6:test": "npx tsx phase6-tests.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.7",
