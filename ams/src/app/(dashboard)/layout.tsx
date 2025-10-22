@@ -50,6 +50,26 @@ export default async function DashboardLayout({
                     Employees
                   </Link>
                 )}
+
+                {/* Show Reports link for admin users */}
+                {userInfo?.role === 'admin' && (
+                  <Link 
+                    href="/admin/reports" 
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Reports
+                  </Link>
+                )}
+
+                {/* Show Settings link for admin users */}
+                {userInfo?.role === 'admin' && (
+                  <Link 
+                    href="/admin/settings" 
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Settings
+                  </Link>
+                )}
                 
                 {/* Show Employee link for all users */}
                 <Link 
@@ -57,6 +77,14 @@ export default async function DashboardLayout({
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   {userInfo?.role === 'admin' || userInfo?.role === 'hr' ? 'Employee View' : 'My Dashboard'}
+                </Link>
+
+                {/* Show Profile link for all users */}
+                <Link 
+                  href="/profile" 
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Profile
                 </Link>
                 
                 {/* Show role badge */}
