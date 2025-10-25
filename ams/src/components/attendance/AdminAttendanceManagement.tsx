@@ -123,13 +123,13 @@ export default function AdminAttendanceManagement() {
         <div className="flex space-x-3">
           <button
             onClick={() => setShowBulkModal(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
           >
             Bulk Mark
           </button>
           <button
             onClick={() => setShowAddModal(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center gap-2 bg-green-600 text-white px-4 py-2.5 rounded-lg hover:bg-green-700 active:bg-green-800 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
           >
             Add Record
           </button>

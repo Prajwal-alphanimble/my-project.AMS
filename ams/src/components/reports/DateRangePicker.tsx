@@ -80,21 +80,21 @@ export function DateRangePicker({
         <button
           type="button"
           onClick={() => handleQuickSelect(7)}
-          className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+          className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 rounded-lg transition-all duration-200 border-2 border-gray-200 hover:border-gray-300"
         >
           Last 7 days
         </button>
         <button
           type="button"
           onClick={() => handleQuickSelect(30)}
-          className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+          className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 rounded-lg transition-all duration-200 border-2 border-gray-200 hover:border-gray-300"
         >
           Last 30 days
         </button>
         <button
           type="button"
           onClick={() => handleQuickSelect(90)}
-          className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+          className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 rounded-lg transition-all duration-200 border-2 border-gray-200 hover:border-gray-300"
         >
           Last 90 days
         </button>
@@ -108,7 +108,7 @@ export function DateRangePicker({
             setLocalEndDate(format(end, 'yyyy-MM-dd'));
             onDateChange(start, end);
           }}
-          className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+          className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 rounded-lg transition-all duration-200 border-2 border-gray-200 hover:border-gray-300"
         >
           This month
         </button>

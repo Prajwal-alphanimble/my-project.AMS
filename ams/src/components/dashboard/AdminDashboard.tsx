@@ -123,9 +123,9 @@ export function AdminDashboard({ userInfo }: AdminDashboardProps) {
           </div>
           <button 
             onClick={handleRefresh}
-            className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
           >
-            <RefreshCw className="h-4 w-4 mr-2" />
+            <RefreshCw className="h-4 w-4" />
             Retry
           </button>
         </div>
@@ -229,9 +229,9 @@ export function AdminDashboard({ userInfo }: AdminDashboardProps) {
         </div>
         <button 
           onClick={handleRefresh}
-          className="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+          className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md font-medium"
         >
-          <RefreshCw className="h-4 w-4 mr-2" />
+          <RefreshCw className="h-4 w-4" />
           Refresh
         </button>
       </div>
@@ -280,14 +280,14 @@ export function AdminDashboard({ userInfo }: AdminDashboardProps) {
                   <button
                     key={index}
                     onClick={action.onClick}
-                    className="w-full p-3 text-left border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all duration-200 group"
+                    className="w-full p-4 text-left bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition-all duration-200 group"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className={`p-2 rounded-lg ${action.bgColor} group-hover:scale-110 transition-transform`}>
-                        <IconComponent className={`h-4 w-4 ${action.color}`} />
+                      <div className={`p-2.5 rounded-lg ${action.bgColor} group-hover:scale-110 transition-transform`}>
+                        <IconComponent className={`h-5 w-5 ${action.color}`} />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                           {action.title}
                         </h4>
                         <p className="text-sm text-gray-600 mt-1">

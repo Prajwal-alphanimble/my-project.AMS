@@ -103,7 +103,7 @@ export function DepartmentPieChart({ days }: DepartmentPieChartProps) {
               <p className="text-red-600 mb-2">Error loading chart</p>
               <button 
                 onClick={fetchDepartmentData}
-                className="text-blue-600 hover:underline"
+                className="text-blue-600 hover:text-blue-800 underline font-medium"
               >
                 Try again
               </button>
