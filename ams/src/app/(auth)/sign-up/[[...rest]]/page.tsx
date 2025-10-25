@@ -11,6 +11,8 @@ export default function SignUpPage() {
           <p className="text-gray-600 mt-2">Create your account</p>
         </div>
         <SignUp 
+          fallbackRedirectUrl="/dashboard"
+          forceRedirectUrl="/dashboard"
           appearance={{
             elements: {
               formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',

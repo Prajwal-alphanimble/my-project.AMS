@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'next/navigation';
 import EmployeeTable from '@/components/tables/EmployeeTable';
 import EmployeeForm from '@/components/forms/EmployeeForm';
 import BulkImportModal from '@/components/forms/BulkImportModal';
@@ -70,6 +71,7 @@ interface EmployeeQuery {
 }
 
 export default function EmployeeManagementPage() {
+  const searchParams = useSearchParams();
   const [query, setQuery] = useState<EmployeeQuery>({
     page: 1,
     limit: 10,
@@ -83,6 +85,15 @@ export default function EmployeeManagementPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeFormData | null>(null);
 
   const queryClient = useQueryClient();
+
+  // Check for action parameter to auto-open add employee form
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (action === 'add') {
+      setShowEmployeeForm(true);
+      setSelectedEmployee(null);
+    }
+  }, [searchParams]);
 
   // Fetch employees
   const { data: employeesData, isLoading: employeesLoading } = useQuery({

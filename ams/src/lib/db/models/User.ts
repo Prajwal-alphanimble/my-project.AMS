@@ -34,14 +34,16 @@ const UserSchema: Schema = new Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
+    index: true
   },
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
+    index: true
   },
   firstName: {
     type: String,
@@ -77,7 +79,8 @@ const UserSchema: Schema = new Schema({
     type: String,
     trim: true,
     unique: true,
-    sparse: true // Allow null values but ensure uniqueness when present
+    sparse: true, // Allow null values but ensure uniqueness when present
+    index: true
   },
   joinDate: {
     type: Date,
@@ -111,13 +114,6 @@ const UserSchema: Schema = new Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
-
-// Index for efficient queries
-UserSchema.index({ clerkUserId: 1 });
-UserSchema.index({ email: 1 });
-UserSchema.index({ role: 1 });
-UserSchema.index({ department: 1 });
-UserSchema.index({ status: 1 });
 
 // Export the model
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

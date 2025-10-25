@@ -36,7 +36,8 @@ const AttendanceSchema: Schema = new Schema({
   status: {
     type: String,
     enum: ['present', 'absent', 'late', 'half-day'],
-    required: true
+    required: true,
+    index: true
   },
   isManualEntry: {
     type: Boolean,
@@ -49,7 +50,8 @@ const AttendanceSchema: Schema = new Schema({
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    index: true
   },
   totalHours: {
     type: Number,
@@ -64,12 +66,6 @@ const AttendanceSchema: Schema = new Schema({
 
 // Compound index for userId and date (one record per user per day)
 AttendanceSchema.index({ userId: 1, date: 1 }, { unique: true });
-
-// Additional indexes for efficient queries
-AttendanceSchema.index({ date: 1 });
-AttendanceSchema.index({ status: 1 });
-AttendanceSchema.index({ createdBy: 1 });
-AttendanceSchema.index({ date: 1, status: 1 }); // Date range queries with status filter
 
 // Pre-save middleware to calculate total hours
 AttendanceSchema.pre('save', function(next) {

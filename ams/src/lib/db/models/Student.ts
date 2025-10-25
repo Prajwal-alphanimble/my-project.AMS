@@ -26,7 +26,8 @@ const StudentSchema: Schema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    index: true
   },
   fullName: {
     type: String,
@@ -37,12 +38,14 @@ const StudentSchema: Schema = new Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
+    index: true
   },
   department: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    index: true
   },
   designation: {
     type: String,
@@ -72,11 +75,6 @@ const StudentSchema: Schema = new Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
-
-// Indexes for efficient queries
-StudentSchema.index({ userId: 1 });
-StudentSchema.index({ studentId: 1 });
-StudentSchema.index({ department: 1 });
 
 // Export the model
 export default mongoose.models.Student || mongoose.model<IStudent>('Student', StudentSchema);

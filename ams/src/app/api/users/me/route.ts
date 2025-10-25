@@ -27,7 +27,7 @@ export async function GET() {
     await connectDB();
     
     // Get full user details from database
-    const dbUser = await User.findOne({ clerkId: userInfo.clerkId }).lean();
+    const dbUser = await User.findOne({ clerkUserId: userInfo.clerkUserId }).lean();
     if (!dbUser) {
       return NextResponse.json(
         { error: 'User not found in database' },
@@ -44,16 +44,14 @@ export async function GET() {
     return NextResponse.json({
       user: {
         id: (dbUser as any)._id,
-        clerkId: userInfo.clerkId,
+        clerkUserId: userInfo.clerkUserId,
         email: userInfo.email,
         firstName: userInfo.firstName,
         lastName: userInfo.lastName,
-        fullName: userInfo.fullName,
         role: userInfo.role,
         department: userInfo.department,
         employeeId: userInfo.employeeId,
-        profileImageUrl: userInfo.profileImageUrl,
-        lastSignIn: userInfo.lastSignIn,
+        avatar: userInfo.avatar,
         status: (dbUser as any).status,
         createdAt: (dbUser as any).createdAt,
         updatedAt: (dbUser as any).updatedAt,
@@ -105,7 +103,7 @@ export async function PUT(req: NextRequest) {
     updateData.updatedAt = new Date();
 
     const updatedUser = await User.findOneAndUpdate(
-      { clerkId: userInfo.clerkId },
+      { clerkUserId: userInfo.clerkUserId },
       updateData,
       { new: true }
     ).lean();
@@ -136,16 +134,15 @@ export async function PUT(req: NextRequest) {
       message: 'Profile updated successfully',
       user: {
         id: (updatedUser as any)._id,
-        clerkId: userInfo.clerkId,
+        clerkUserId: userInfo.clerkUserId,
         email: (updatedUser as any).email,
         firstName: (updatedUser as any).firstName,
         lastName: (updatedUser as any).lastName,
-        fullName: `${(updatedUser as any).firstName} ${(updatedUser as any).lastName}`,
         role: (updatedUser as any).role,
         department: (updatedUser as any).department,
         employeeId: (updatedUser as any).employeeId,
         phone: (updatedUser as any).phone,
-        profileImageUrl: (updatedUser as any).profileImageUrl,
+        avatar: (updatedUser as any).avatar,
         status: (updatedUser as any).status,
         updatedAt: (updatedUser as any).updatedAt,
       },

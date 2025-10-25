@@ -13,38 +13,75 @@ export async function getCurrentUserRole() {
     await connectDB();
     
     // Try to find user in our database first
-    let dbUser = await User.findOne({ clerkId: clerkUser.id });
+    let dbUser = await User.findOne({ clerkUserId: clerkUser.id });
     
     // If user doesn't exist in our DB, create them
     if (!dbUser) {
-      const userData = {
-        clerkId: clerkUser.id,
-        email: clerkUser.emailAddresses[0]?.emailAddress || '',
-        firstName: clerkUser.firstName || 'Unknown',
-        lastName: clerkUser.lastName || 'User',
-        role: clerkUser.publicMetadata?.role || 'employee',
-        department: clerkUser.publicMetadata?.department || undefined,
-        employeeId: clerkUser.publicMetadata?.employeeId || undefined,
-        phone: clerkUser.phoneNumbers[0]?.phoneNumber || undefined,
-        profileImageUrl: clerkUser.imageUrl || undefined,
-        lastSignIn: clerkUser.lastSignInAt ? new Date(clerkUser.lastSignInAt) : undefined,
-      };
+      try {
+        const userData = {
+          clerkUserId: clerkUser.id,
+          email: clerkUser.emailAddresses[0]?.emailAddress || '',
+          firstName: clerkUser.firstName || 'Unknown',
+          lastName: clerkUser.lastName || 'User',
+          role: clerkUser.publicMetadata?.role || 'employee',
+          department: clerkUser.publicMetadata?.department || 'General',
+          employeeId: clerkUser.publicMetadata?.employeeId || undefined,
+          phone: clerkUser.phoneNumbers[0]?.phoneNumber || undefined,
+          avatar: clerkUser.imageUrl || undefined,
+          status: 'active',
+        };
 
-      dbUser = await User.create(userData);
+        dbUser = await User.create(userData);
+      } catch (createError: any) {
+        // If duplicate key error on email, try to find user by email
+        if (createError.code === 11000) {
+          dbUser = await User.findOne({ email: clerkUser.emailAddresses[0]?.emailAddress });
+          if (dbUser) {
+            // Update user with missing required fields
+            const updateData: any = {};
+            if (!dbUser.clerkUserId) {
+              updateData.clerkUserId = clerkUser.id;
+            }
+            if (!dbUser.department) {
+              updateData.department = clerkUser.publicMetadata?.department || 'General';
+            }
+            if (!dbUser.role) {
+              updateData.role = clerkUser.publicMetadata?.role || 'employee';
+            }
+            if (!dbUser.firstName) {
+              updateData.firstName = clerkUser.firstName || 'Unknown';
+            }
+            if (!dbUser.lastName) {
+              updateData.lastName = clerkUser.lastName || 'User';
+            }
+            
+            // Use findOneAndUpdate to bypass validation on existing fields
+            if (Object.keys(updateData).length > 0) {
+              dbUser = await User.findOneAndUpdate(
+                { email: clerkUser.emailAddresses[0]?.emailAddress },
+                { $set: updateData },
+                { new: true, runValidators: true }
+              );
+            }
+          }
+        }
+        
+        if (!dbUser) {
+          throw createError;
+        }
+      }
     }
 
     return {
       id: dbUser._id.toString(),
-      clerkId: dbUser.clerkId,
+      clerkUserId: dbUser.clerkUserId,
       email: dbUser.email,
       firstName: dbUser.firstName,
       lastName: dbUser.lastName,
-      fullName: dbUser.fullName,
       role: dbUser.role,
       department: dbUser.department,
       employeeId: dbUser.employeeId,
-      profileImageUrl: dbUser.profileImageUrl,
-      lastSignIn: dbUser.lastSignIn ? dbUser.lastSignIn.toISOString() : null,
+      avatar: dbUser.avatar,
     };
 
   } catch (error) {

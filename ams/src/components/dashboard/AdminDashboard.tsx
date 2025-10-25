@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Users, 
   UserCheck, 
@@ -52,6 +53,7 @@ export function AdminDashboard({ userInfo }: AdminDashboardProps) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchDashboardStats();
@@ -176,25 +178,36 @@ export function AdminDashboard({ userInfo }: AdminDashboardProps) {
   // Quick actions configuration
   const quickActions = [
     {
+      title: 'Manage Users',
+      description: 'View and assign user roles',
+      icon: Users,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      onClick: () => router.push('/admin/users')
+    },
+    {
       title: 'Add Employee',
       description: 'Register a new employee',
       icon: UserPlus,
       color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
+      bgColor: 'bg-blue-50',
+      onClick: () => router.push('/employees?action=add')
     },
     {
       title: 'Generate Report',
       description: 'Create attendance reports',
       icon: FileText,
       color: 'text-green-600', 
-      bgColor: 'bg-green-50'
+      bgColor: 'bg-green-50',
+      onClick: () => router.push('/admin/reports')
     },
     {
       title: 'System Settings',
       description: 'Configure system preferences',
       icon: Settings,
       color: 'text-gray-600',
-      bgColor: 'bg-gray-50'
+      bgColor: 'bg-gray-50',
+      onClick: () => router.push('/admin/settings')
     }
   ];
 
@@ -266,6 +279,7 @@ export function AdminDashboard({ userInfo }: AdminDashboardProps) {
                 return (
                   <button
                     key={index}
+                    onClick={action.onClick}
                     className="w-full p-3 text-left border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all duration-200 group"
                   >
                     <div className="flex items-center space-x-3">
